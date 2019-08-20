@@ -70,10 +70,18 @@ struct swaylock_password {
 	char buffer[1024];
 };
 
+struct swaylock_touch {
+	bool pressed;
+	uint32_t x;
+	uint32_t y;
+	int32_t id;
+	int height;
+};
+
 struct swaylock_state {
 	struct loop *eventloop;
 	struct loop_timer *clear_indicator_timer; // clears the indicator
-	struct loop_timer *clear_password_timer;  // clears the password buffer
+	struct loop_timer *clear_password_timer; // clears the password buffer
 	struct wl_display *display;
 	struct wl_compositor *compositor;
 	struct wl_subcompositor *subcompositor;
@@ -85,6 +93,7 @@ struct swaylock_state {
 	struct swaylock_args args;
 	struct swaylock_password password;
 	struct swaylock_xkb xkb;
+	struct swaylock_touch touch;
 	enum auth_state auth_state;
 	int failed_attempts;
 	bool run_display;
@@ -121,8 +130,8 @@ struct swaylock_image {
 	struct wl_list link;
 };
 
-void swaylock_handle_key(struct swaylock_state *state,
-		xkb_keysym_t keysym, uint32_t codepoint);
+void swaylock_handle_key(struct swaylock_state *state, xkb_keysym_t keysym,
+			 uint32_t codepoint);
 void render_frame_background(struct swaylock_surface *surface);
 void render_frame(struct swaylock_surface *surface);
 void render_frames(struct swaylock_state *state);

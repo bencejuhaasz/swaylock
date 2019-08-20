@@ -14,6 +14,7 @@ struct swaylock_seat {
 	struct swaylock_state *state;
 	struct wl_pointer *pointer;
 	struct wl_keyboard *keyboard;
+	struct wl_touch *touch;
 };
 
 extern const struct wl_seat_listener seat_listener;
