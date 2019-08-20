@@ -68,7 +68,7 @@ void render_frame_background(struct swaylock_surface *surface) {
 	wl_surface_commit(surface->surface);
 }
 
-void render_frame(struct swaylock_surface *surface) {
+void render_frame_keyboard_prompt(struct swaylock_surface *surface) {
 	struct swaylock_state *state = surface->state;
 
 	int arc_radius = state->args.radius * surface->scale;
@@ -319,6 +319,28 @@ void render_frame(struct swaylock_surface *surface) {
 	wl_surface_commit(surface->child);
 
 	wl_surface_commit(surface->surface);
+}
+
+void render_frame_touch_swiping(struct swaylock_surface *surface) {
+}
+
+void render_frame_touch_pin(struct swaylock_surface *surface) {
+}
+
+void render_frame(struct swaylock_surface *surface) {
+  struct swaylock_state *state = surface->state;
+  switch(state->touch_drawing_state) {
+  case TOUCH_DRAWING_STATE_INITIAL:
+    render_frame_keyboard_prompt(surface);
+    break;
+  case TOUCH_DRAWING_STATE_SWIPING:
+    render_frame_touch_swiping(surface);
+    break;
+  case TOUCH_DRAWING_STATE_PIN:
+    render_frame_touch_pin(surface);
+  default:
+    break;
+  }
 }
 
 void render_frames(struct swaylock_state *state) {
