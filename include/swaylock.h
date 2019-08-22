@@ -19,11 +19,11 @@ enum auth_state {
 	AUTH_STATE_INVALID,
 };
 
-enum touch_drawing_state {
-	TOUCH_DRAWING_STATE_INITIAL,
-	TOUCH_DRAWING_STATE_SWIPING,
-	TOUCH_DRAWING_STATE_PIN,
-	TOUCH_DRAWING_STATE_PIN_INCORRECT,
+enum render_state {
+	RENDER_STATE_INITIAL,
+	RENDER_STATE_KEYBOARD,
+	RENDER_STATE_SWIPING,
+	RENDER_STATE_PIN,
 };
 
 struct swaylock_colorset {
@@ -102,7 +102,7 @@ struct swaylock_state {
 	struct swaylock_xkb xkb;
 	struct swaylock_touch touch;
 	enum auth_state auth_state;
-  enum touch_drawing_state touch_drawing_state;
+  enum render_state render_state;
 	int failed_attempts;
 	bool run_display;
 	struct zxdg_output_manager_v1 *zxdg_output_manager;

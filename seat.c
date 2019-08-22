@@ -196,6 +196,8 @@ static void wl_touch_down(void *data, struct wl_touch *touch, uint32_t serial,
 		state->touch.x = wl_fixed_to_int(x);
 		state->touch.y = wl_fixed_to_int(y);
 		state->touch.height = output_surface->height;
+		state->render_state = RENDER_STATE_SWIPING;
+		damage_state(state);
 	}
 }
 
@@ -207,10 +209,11 @@ static void wl_touch_up(void *data, struct wl_touch *touch, uint32_t serial,
 	uint32_t finish_zone_height = (uint32_t)state->touch.height / 5;
 	if (state->touch.id == id && state->touch.pressed) {
 		if (state->touch.y < finish_zone_height) {
-			printf("touch point released in the finish zone\n");
+			state->run_display = false;
 		}
 		state->touch.pressed = false;
-		state->run_display = false;
+		state->render_state = RENDER_STATE_INITIAL;
+		damage_state(state);
 	}
 }
 
@@ -222,6 +225,7 @@ static void wl_touch_motion(void *data, struct wl_touch *touch, uint32_t time,
 	if (state->touch.id == id) {
 		state->touch.x = wl_fixed_to_int(x);
 		state->touch.y = wl_fixed_to_int(y);
+		damage_state(state);
 	}
 }
 
