@@ -24,6 +24,8 @@ enum render_state {
 	RENDER_STATE_KEYBOARD,
 	RENDER_STATE_SWIPING,
 	RENDER_STATE_PIN,
+	RENDER_STATE_FIRST_UNLOCK,
+	RENDER_STATE_FIRST_UNLOCK_DONE,
 };
 
 struct swaylock_colorset {
@@ -81,8 +83,6 @@ struct swaylock_touch {
 	bool pressed;
 	uint32_t x;
 	uint32_t y;
-	int32_t id;
-	int height;
 };
 
 struct swaylock_state {
@@ -94,7 +94,7 @@ struct swaylock_state {
 	struct wl_subcompositor *subcompositor;
 	struct zwlr_layer_shell_v1 *layer_shell;
 	struct zwlr_input_inhibit_manager_v1 *input_inhibit_manager;
-	struct wl_shm *shm;
+ 	struct wl_shm *shm;
 	struct wl_list surfaces;
 	struct wl_list images;
 	struct swaylock_args args;
@@ -102,7 +102,7 @@ struct swaylock_state {
 	struct swaylock_xkb xkb;
 	struct swaylock_touch touch;
 	enum auth_state auth_state;
-  enum render_state render_state;
+	enum render_state render_state;
 	int failed_attempts;
 	bool run_display;
 	struct zxdg_output_manager_v1 *zxdg_output_manager;

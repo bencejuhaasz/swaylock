@@ -161,44 +161,38 @@ static const struct wl_pointer_listener pointer_listener = {
 
 static void wl_touch_down(void *data, struct wl_touch *touch, uint32_t serial,
 			  uint32_t time, struct wl_surface *surface, int32_t id,
-			  wl_fixed_t x, wl_fixed_t y)
-{
+			  wl_fixed_t x, wl_fixed_t y) {
 	struct swaylock_seat *seat = data;
 	struct swaylock_state *state = seat->state;
-	//TODO figure out how to correctly correllate the output to the touschreen in
-	// a tablet+external monitor config
-	struct swaylock_surface *output_surface;
-	wl_list_for_each(output_surface, &state->surfaces, link)
-	{
-		break;
-	}
 
-	int32_t threshold_y = output_surface->height * 4 / 5;
-	if (!state->touch.pressed && wl_fixed_to_int(y) > threshold_y) {
+	if (!state->touch.pressed) {
+		//TODO figure out how to correctly correllate the output to the touschreen in
+		// a tablet+external monitor config
+		struct swaylock_surface *output_surface;
+		wl_list_for_each(output_surface, &state->surfaces, link)
+		{
+			break;
+		}
+
 		state->touch.pressed = true;
-		state->touch.id = id;
 		state->touch.x = wl_fixed_to_int(x);
 		state->touch.y = wl_fixed_to_int(y);
-		state->touch.height = output_surface->height;
-		state->render_state = RENDER_STATE_SWIPING;
+		if (state->render_state == RENDER_STATE_INITIAL) {
+		  state->render_state = RENDER_STATE_FIRST_UNLOCK;
+		}
 		damage_state(state);
 	}
 }
 
 static void wl_touch_up(void *data, struct wl_touch *touch, uint32_t serial,
-			uint32_t time, int32_t id)
-{
+			uint32_t time, int32_t id) {
 	struct swaylock_seat *seat = data;
 	struct swaylock_state *state = seat->state;
-	uint32_t finish_zone_height = (uint32_t)state->touch.height / 5;
-	if (state->touch.id == id && state->touch.pressed) {
-		if (state->touch.y < finish_zone_height) {
-			state->run_display = false;
-		}
-		state->touch.pressed = false;
+	if (state->render_state == RENDER_STATE_FIRST_UNLOCK) {
 		state->render_state = RENDER_STATE_INITIAL;
-		damage_state(state);
 	}
+	state->touch.pressed = false;
+	damage_state(state);
 }
 
 static void wl_touch_motion(void *data, struct wl_touch *touch, uint32_t time,
@@ -206,11 +200,7 @@ static void wl_touch_motion(void *data, struct wl_touch *touch, uint32_t time,
 {
 	struct swaylock_seat *seat = data;
 	struct swaylock_state *state = seat->state;
-	if (state->touch.id == id) {
-		state->touch.x = wl_fixed_to_int(x);
-		state->touch.y = wl_fixed_to_int(y);
-		damage_state(state);
-	}
+	damage_state(state);
 }
 
 static void wl_touch_frame(void *data, struct wl_touch *touch)
