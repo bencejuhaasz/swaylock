@@ -10,6 +10,7 @@
 #include "loop.h"
 #include "seat.h"
 #include "swaylock.h"
+#include "buttons.h"
 #include "unicode.h"
 
 void clear_buffer(char *buf, size_t size) {
@@ -165,4 +166,105 @@ void swaylock_handle_key(struct swaylock_state *state,
 		}
 		break;
 	}
+}
+
+
+
+static void continuous_render(void *data) {
+  struct swaylock_state *state = data;
+  if (state->render_state == RENDER_STATE_FIRST_UNLOCK
+      || state->render_state == RENDER_STATE_FIRST_UNLOCK_DONE) {
+    damage_state(state);
+    state->continuous_render_timer =
+      loop_add_timer(state->eventloop, 16, continuous_render, state);
+  }
+  
+}
+
+void schedule_continuous_render(struct swaylock_state *state) {
+	if (state->continuous_render_timer) {
+		loop_remove_timer(state->eventloop,
+				  state->continuous_render_timer);
+	}
+	state->continuous_render_timer = loop_add_timer(
+		state->eventloop, 16, continuous_render, state);
+}
+
+
+static void first_unlock_done_complete(void *data) {
+  struct swaylock_state *state = data;
+  state->render_state = RENDER_STATE_PIN;
+  damage_state(state);
+  printf("unlock done\n");
+}
+
+void schedule_first_unlock_done_complete(struct swaylock_state *state) {
+  if (state->first_unlock_done_timer) {
+    loop_remove_timer(state->eventloop, state->first_unlock_done_timer);
+  }
+  state->first_unlock_done_timer = loop_add_timer(state->eventloop, 1000, first_unlock_done_complete, state);
+}
+
+static void first_unlock(void *data) {
+	struct swaylock_state *state = data;
+	if (state->render_state == RENDER_STATE_FIRST_UNLOCK) {
+		state->render_state = RENDER_STATE_FIRST_UNLOCK_DONE;
+		schedule_first_unlock_done_complete(state);
+		damage_state(state);
+	}
+}
+
+void schedule_first_unlock_complete(struct swaylock_state *state) {
+	if (state->first_unlock_timer) {
+		loop_remove_timer(state->eventloop, state->first_unlock_timer);
+	}
+	state->first_unlock_timer =
+		loop_add_timer(state->eventloop, 5000, first_unlock, state);
+}
+
+void swaylock_handle_touch(struct swaylock_state *state,
+			   enum touch_event event, int x, int y) {
+	switch (event) {
+	case TOUCH_EVENT_DOWN:
+		if (!state->touch.pressed) {
+			state->touch.pressed = true;
+			state->touch.x = x;
+			state->touch.y = y;
+			if (state->render_state == RENDER_STATE_INITIAL) {
+			  /*	state->render_state = RENDER_STATE_FIRST_UNLOCK;
+				schedule_first_unlock_complete(state);
+				schedule_continuous_render(state);*/
+			  state->render_state = RENDER_STATE_PIN;
+			}
+		}
+		break;
+	case TOUCH_EVENT_UP:
+		state->touch.pressed = false;
+		if (state->render_state == RENDER_STATE_FIRST_UNLOCK) {
+			state->render_state = RENDER_STATE_INITIAL;
+			loop_remove_timer(state->eventloop,
+					  state->first_unlock_timer);
+		}
+		break;
+	case TOUCH_EVENT_MOTION:
+		if (state->render_state == RENDER_STATE_FIRST_UNLOCK) {
+			if (x > 100 &&
+			    y > 100) { //TODO check if it's just my touch
+				state->touch.x = x;
+				state->touch.y = y;
+			}
+		}
+		break;
+	}
+	damage_state(state);
+}
+
+void swaylock_touch_recalculate_keys(struct swaylock_state *state, uint32_t new_width, uint32_t new_height) {
+
+  state->to
+  
+  int button_spacing = 50;
+  int button_width = (buffer_width - button_spacing * 4) / 3;
+  int button_height = (buffer_width - button_spacing * 5) / 4;
+  
 }

@@ -191,3 +191,20 @@ bool loop_remove_timer(struct loop *loop, struct loop_timer *remove) {
 	}
 	return false;
 }
+
+int loop_timer_remaining(struct loop *loop, struct loop_timer *timer) {
+	struct loop_timer *tmp = NULL;
+	wl_list_for_each(tmp, &loop->timers, link)
+	{
+		if (tmp == timer) {
+			struct timespec now;
+			clock_gettime(CLOCK_MONOTONIC, &now);
+			int timer_ms =
+				(timer->expiry.tv_sec - now.tv_sec) * 1000;
+			timer_ms +=
+				(timer->expiry.tv_nsec - now.tv_nsec) / 1000000;
+			return timer_ms;
+		}
+	}
+	return 0;
+}

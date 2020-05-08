@@ -9,8 +9,7 @@
 #include "seat.h"
 
 static void keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard,
-			    uint32_t format, int32_t fd, uint32_t size)
-{
+			    uint32_t format, int32_t fd, uint32_t size) {
 	struct swaylock_state *state = data;
 	if (format != WL_KEYBOARD_KEYMAP_FORMAT_XKB_V1) {
 		close(fd);
@@ -42,21 +41,18 @@ static void keyboard_keymap(void *data, struct wl_keyboard *wl_keyboard,
 
 static void keyboard_enter(void *data, struct wl_keyboard *wl_keyboard,
 			   uint32_t serial, struct wl_surface *surface,
-			   struct wl_array *keys)
-{
+			   struct wl_array *keys) {
 	// Who cares
 }
 
 static void keyboard_leave(void *data, struct wl_keyboard *wl_keyboard,
-			   uint32_t serial, struct wl_surface *surface)
-{
+			   uint32_t serial, struct wl_surface *surface) {
 	// Who cares
 }
 
 static void keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
 			 uint32_t serial, uint32_t time, uint32_t key,
-			 uint32_t _key_state)
-{
+			 uint32_t _key_state) {
 	struct swaylock_state *state = data;
 	enum wl_keyboard_key_state key_state = _key_state;
 	xkb_keysym_t sym = xkb_state_key_get_one_sym(state->xkb.state, key + 8);
@@ -71,14 +67,12 @@ static void keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
 static void keyboard_modifiers(void *data, struct wl_keyboard *wl_keyboard,
 			       uint32_t serial, uint32_t mods_depressed,
 			       uint32_t mods_latched, uint32_t mods_locked,
-			       uint32_t group)
-{
+			       uint32_t group) {
   //left blank
 }
 
 static void keyboard_repeat_info(void *data, struct wl_keyboard *wl_keyboard,
-				 int32_t rate, int32_t delay)
-{
+				 int32_t rate, int32_t delay) {
 	// TODO
 }
 
@@ -93,57 +87,48 @@ static const struct wl_keyboard_listener keyboard_listener = {
 
 static void wl_pointer_enter(void *data, struct wl_pointer *wl_pointer,
 			     uint32_t serial, struct wl_surface *surface,
-			     wl_fixed_t surface_x, wl_fixed_t surface_y)
-{
+			     wl_fixed_t surface_x, wl_fixed_t surface_y) {
 	wl_pointer_set_cursor(wl_pointer, serial, NULL, 0, 0);
 }
 
 static void wl_pointer_leave(void *data, struct wl_pointer *wl_pointer,
-			     uint32_t serial, struct wl_surface *surface)
-{
+			     uint32_t serial, struct wl_surface *surface) {
 	// Who cares
 }
 
 static void wl_pointer_motion(void *data, struct wl_pointer *wl_pointer,
 			      uint32_t time, wl_fixed_t surface_x,
-			      wl_fixed_t surface_y)
-{
+			      wl_fixed_t surface_y) {
 	// Who cares
 }
 
 static void wl_pointer_button(void *data, struct wl_pointer *wl_pointer,
 			      uint32_t serial, uint32_t time, uint32_t button,
-			      uint32_t state)
-{
+			      uint32_t state) {
 	// Who cares
 }
 
 static void wl_pointer_axis(void *data, struct wl_pointer *wl_pointer,
-			    uint32_t time, uint32_t axis, wl_fixed_t value)
-{
+			    uint32_t time, uint32_t axis, wl_fixed_t value) {
 	// Who cares
 }
 
-static void wl_pointer_frame(void *data, struct wl_pointer *wl_pointer)
-{
+static void wl_pointer_frame(void *data, struct wl_pointer *wl_pointer) {
 	// Who cares
 }
 
 static void wl_pointer_axis_source(void *data, struct wl_pointer *wl_pointer,
-				   uint32_t axis_source)
-{
+				   uint32_t axis_source) {
 	// Who cares
 }
 
 static void wl_pointer_axis_stop(void *data, struct wl_pointer *wl_pointer,
-				 uint32_t time, uint32_t axis)
-{
+				 uint32_t time, uint32_t axis) {
 	// Who cares
 }
 
 static void wl_pointer_axis_discrete(void *data, struct wl_pointer *wl_pointer,
-				     uint32_t axis, int32_t discrete)
-{
+				     uint32_t axis, int32_t discrete) {
 	// Who cares
 }
 
@@ -164,64 +149,40 @@ static void wl_touch_down(void *data, struct wl_touch *touch, uint32_t serial,
 			  wl_fixed_t x, wl_fixed_t y) {
 	struct swaylock_seat *seat = data;
 	struct swaylock_state *state = seat->state;
-
-	if (!state->touch.pressed) {
-		//TODO figure out how to correctly correllate the output to the touschreen in
-		// a tablet+external monitor config
-		struct swaylock_surface *output_surface;
-		wl_list_for_each(output_surface, &state->surfaces, link)
-		{
-			break;
-		}
-
-		state->touch.pressed = true;
-		state->touch.x = wl_fixed_to_int(x);
-		state->touch.y = wl_fixed_to_int(y);
-		if (state->render_state == RENDER_STATE_INITIAL) {
-		  state->render_state = RENDER_STATE_FIRST_UNLOCK;
-		}
-		damage_state(state);
-	}
+	swaylock_handle_touch(state, TOUCH_EVENT_DOWN, wl_fixed_to_int(x),
+			      wl_fixed_to_int(y));
 }
 
 static void wl_touch_up(void *data, struct wl_touch *touch, uint32_t serial,
 			uint32_t time, int32_t id) {
 	struct swaylock_seat *seat = data;
 	struct swaylock_state *state = seat->state;
-	if (state->render_state == RENDER_STATE_FIRST_UNLOCK) {
-		state->render_state = RENDER_STATE_INITIAL;
-	}
-	state->touch.pressed = false;
-	damage_state(state);
+	swaylock_handle_touch(state, TOUCH_EVENT_UP, 0, 0);
 }
 
 static void wl_touch_motion(void *data, struct wl_touch *touch, uint32_t time,
-			    int32_t id, wl_fixed_t x, wl_fixed_t y)
-{
+			    int32_t id, wl_fixed_t x, wl_fixed_t y) {
 	struct swaylock_seat *seat = data;
 	struct swaylock_state *state = seat->state;
-	damage_state(state);
+	swaylock_handle_touch(state, TOUCH_EVENT_MOTION, wl_fixed_to_int(x),
+			      wl_fixed_to_int(y));
 }
 
-static void wl_touch_frame(void *data, struct wl_touch *touch)
-{
+static void wl_touch_frame(void *data, struct wl_touch *touch) {
 	//Unneded, left blank
 }
 
 static void wl_touch_orientation(void *data, struct wl_touch *touch, int32_t id,
-				 wl_fixed_t orientation)
-{
+				 wl_fixed_t orientation) {
 	//"Who cares" is so cruel
 }
 
-static void wl_touch_cancel(void *data, struct wl_touch *touch)
-{
+static void wl_touch_cancel(void *data, struct wl_touch *touch) {
 	//Unneeded, left blank
 }
 
 static void wl_touch_shape(void *data, struct wl_touch *touch, int32_t id,
-			   wl_fixed_t major, wl_fixed_t minor)
-{
+			   wl_fixed_t major, wl_fixed_t minor) {
 	//Unneeded, left blank
 }
 
@@ -236,8 +197,7 @@ static const struct wl_touch_listener touch_listener = {
 };
 
 static void seat_handle_capabilities(void *data, struct wl_seat *wl_seat,
-				     enum wl_seat_capability caps)
-{
+				     enum wl_seat_capability caps) {
 	struct swaylock_seat *seat = data;
 	if (seat->pointer) {
 		wl_pointer_release(seat->pointer);
@@ -271,8 +231,7 @@ static void seat_handle_capabilities(void *data, struct wl_seat *wl_seat,
 }
 
 static void seat_handle_name(void *data, struct wl_seat *wl_seat,
-			     const char *name)
-{
+			     const char *name) {
 	// Who cares
 }
 

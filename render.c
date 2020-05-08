@@ -4,10 +4,20 @@
 #include "cairo.h"
 #include "background-image.h"
 #include "swaylock.h"
+#include "loop.h"
+#include "buttons.h"
+
+ const char *buttons[12] = {
+      "1", "2", "3",
+      "4", "5", "6",
+      "7", "8", "9",
+      "⌫", "0", "⏎"};
 
 #define M_PI 3.14159265358979323846
 const float TYPE_INDICATOR_RANGE = M_PI / 3.0f;
 const float TYPE_INDICATOR_BORDER_THICKNESS = M_PI / 128.0f;
+
+
 
 static void set_color_for_state(cairo_t *cairo, struct swaylock_state *state,
 				struct swaylock_colorset *colorset)
@@ -370,26 +380,10 @@ void render_frame_keyboard_prompt(struct swaylock_surface *surface)
 	wl_surface_commit(surface->surface);
 }
 
-void render_frame_touch_swiping(struct swaylock_surface *surface)
-{
+bool render_prepare_surface(struct swaylock_surface *surface, int subsurf_xpos,
+			    int subsurf_ypos, int buffer_width,
+			    int buffer_height) {
 	struct swaylock_state *state = surface->state;
-
-	int arc_radius = state->args.radius * surface->scale;
-	int arc_thickness = state->args.thickness * surface->scale;
-	int buffer_diameter =
-		(arc_radius + arc_thickness) * 2 +
-		100; // magic number because the circle gets truncated during fast movements
-
-	int buffer_width = surface->indicator_width;
-	int buffer_height = surface->indicator_height;
-	int new_width = buffer_diameter;
-	int new_height = buffer_diameter;
-
-	int subsurf_xpos = state->touch.x -
-			   buffer_width / (2 * surface->scale) +
-			   2 / surface->scale;
-	int subsurf_ypos = state->touch.y -
-			   (state->args.radius + state->args.thickness);
 	wl_subsurface_set_position(surface->subsurface, subsurf_xpos,
 				   subsurf_ypos);
 
@@ -397,7 +391,7 @@ void render_frame_touch_swiping(struct swaylock_surface *surface)
 		get_next_buffer(state->shm, surface->indicator_buffers,
 				buffer_width, buffer_height);
 	if (surface->current_buffer == NULL) {
-		return;
+		return false;
 	}
 
 	// Hide subsurface until we want it visible
@@ -415,13 +409,80 @@ void render_frame_touch_swiping(struct swaylock_surface *surface)
 	cairo_paint(cairo);
 	cairo_restore(cairo);
 
-	cairo_set_line_width(cairo, arc_thickness);
-	cairo_arc(cairo, buffer_width / 2, buffer_diameter / 2, arc_radius, 0,
-		  2 * M_PI);
-	set_color_for_state(cairo, state, &state->args.colors.inside);
-	cairo_fill_preserve(cairo);
-	set_color_for_state(cairo, state, &state->args.colors.ring);
+	return true;
+}
+
+void render_frame_touch_pin(struct swaylock_surface *surface) {
+  struct swaylock_state *state = surface->state;
+  int minimum_width = (surface->width < surface->height) ? surface->width : surface->height;
+  int buffer_width = minimum_width * 3 / 4;
+  int button_spacing = 50;
+  int button_width = (buffer_width - button_spacing * 4) / 3;
+  int button_height = (buffer_width - button_spacing * 5) / 4;
+
+  if (!render_prepare_surface(surface, (surface->width - buffer_width) / 2,
+			      (surface->height - buffer_width) / 2,
+			      buffer_width, buffer_width)) {
+	  return;
+  }
+
+    cairo_t *cairo = surface->current_buffer->cairo;
+    set_color_for_state(cairo, state, &state->args.colors.line);
+    cairo_set_line_width(cairo, state->args.thickness * surface->scale);
+
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 3; j++) {
+	      cairo_rectangle(cairo,
+			      button_spacing * (j + 1) + button_width * j,
+			      button_spacing * (i + 1) + button_height * i,
+			      button_width, button_height);
+	      cairo_move_to(cairo,
+			    button_spacing * (j + 1) + button_width * j +
+				    button_width / 2,
+			    button_spacing * (i + 1) + button_height * i +
+				    button_height / 2);
+	      cairo_show_text(cairo, buttons[i * 3 + j]);
+      }
+    }
+    cairo_stroke(cairo);
+
+    /*    	if (buffer_width != new_width || buffer_height != new_height) {
+		destroy_buffer(surface->current_buffer);
+		surface->indicator_width = new_width;
+		surface->indicator_height = new_height;
+		render_frame(surface);
+		}*/
+    
+}
+
+void render_frame_first_unlock(struct swaylock_surface *surface) {
+	struct swaylock_state *state = surface->state;
+	int arc_radius = state->args.radius * surface->scale;
+	int buffer_diameter = (arc_radius)*2;
+
+	int buffer_width = surface->indicator_width;
+	int buffer_height = surface->indicator_height;
+	int new_width = buffer_diameter;
+	int new_height = buffer_diameter;
+
+	int subsurf_xpos = state->touch.x -
+			   buffer_width / (2 * surface->scale) +
+			   2 / surface->scale;
+	int subsurf_ypos =
+		state->touch.y - (state->args.radius + state->args.thickness);
+	if (!render_prepare_surface(surface, subsurf_xpos, subsurf_ypos,
+				    buffer_width, buffer_height)) {
+		return;
+	}
+
+	cairo_t *cairo = surface->current_buffer->cairo;
+
+	//TODO  cairo drawing here
+	int arc_fill = loop_timer_remaining(state->eventloop, state->first_unlock_timer);
+	cairo_arc(cairo, buffer_width / 2, buffer_height / 2, arc_radius, 0,
+		  M_PI * 2 * arc_fill / 5000.0f);
 	cairo_stroke(cairo);
+
 
 	if (buffer_width != new_width || buffer_height != new_height) {
 		destroy_buffer(surface->current_buffer);
@@ -429,6 +490,69 @@ void render_frame_touch_swiping(struct swaylock_surface *surface)
 		surface->indicator_height = new_height;
 		render_frame(surface);
 	}
+}
+
+void render_frame_first_unlock_done(struct swaylock_surface *surface) {
+	struct swaylock_state *state = surface->state;
+	int buffer_width = surface->indicator_width;
+	int buffer_height = surface->indicator_height;
+	int subsurf_xpos = state->touch.x -
+			   buffer_width / (2 * surface->scale) +
+			   2 / surface->scale;
+	int subsurf_ypos =
+		state->touch.y - (state->args.radius + state->args.thickness);
+
+	int arc_radius = state->args.radius * surface->scale;
+	int buffer_diameter = (arc_radius)*2;
+	int new_width = buffer_diameter;
+	int new_height = buffer_diameter;
+
+	if (!render_prepare_surface(surface, subsurf_xpos, subsurf_ypos, buffer_width,
+				    buffer_height)) {
+		return;
+	}
+
+	//TODO cairo goes here
+	cairo_t *cairo = surface->current_buffer->cairo;
+	set_color_for_state(cairo, state, &state->args.colors.inside);
+	cairo_arc(cairo, buffer_width / 2, buffer_height / 2, arc_radius, 0, 2 * M_PI);
+	cairo_fill(cairo);
+	
+
+	if (buffer_width != new_width || buffer_height != new_height) {
+		destroy_buffer(surface->current_buffer);
+		surface->indicator_width = new_width;
+		surface->indicator_height = new_height;
+		render_frame(surface);
+	}
+	
+}
+
+void render_frame(struct swaylock_surface *surface) {
+	struct swaylock_state *state = surface->state;
+
+	render_frame_background(surface);
+	
+	switch (state->render_state) {
+
+	case RENDER_STATE_KEYBOARD:
+		render_frame_keyboard_prompt(surface);
+		break;
+	case RENDER_STATE_INITIAL:
+		break;
+	case RENDER_STATE_FIRST_UNLOCK:
+	  	render_frame_first_unlock(surface);
+		break;
+	case RENDER_STATE_FIRST_UNLOCK_DONE:
+	  	render_frame_first_unlock_done(surface);
+		break;
+	case RENDER_STATE_PIN:
+		render_frame_touch_pin(surface);
+		break;
+	default:
+		break;
+	}
+
 
 	wl_surface_set_buffer_scale(surface->child, surface->scale);
 	wl_surface_attach(surface->child, surface->current_buffer->buffer, 0,
@@ -438,32 +562,10 @@ void render_frame_touch_swiping(struct swaylock_surface *surface)
 	wl_surface_commit(surface->child);
 
 	wl_surface_commit(surface->surface);
+	
 }
 
-void render_frame_touch_pin(struct swaylock_surface *surface)
-{
-}
-
-void render_frame(struct swaylock_surface *surface)
-{
-	struct swaylock_state *state = surface->state;
-	switch (state->render_state) {
-	case RENDER_STATE_INITIAL:
-	case RENDER_STATE_KEYBOARD:
-		render_frame_keyboard_prompt(surface);
-		break;
-	case RENDER_STATE_SWIPING:
-		render_frame_touch_swiping(surface);
-		break;
-	case RENDER_STATE_PIN:
-		render_frame_touch_pin(surface);
-	default:
-		break;
-	}
-}
-
-void render_frames(struct swaylock_state *state)
-{
+void render_frames(struct swaylock_state *state) {
 	struct swaylock_surface *surface;
 	wl_list_for_each(surface, &state->surfaces, link)
 	{

@@ -51,4 +51,6 @@ bool loop_remove_fd(struct loop *loop, int fd);
  */
 bool loop_remove_timer(struct loop *loop, struct loop_timer *timer);
 
+int loop_timer_remaining(struct loop *loop, struct loop_timer *timer);
+
 #endif
