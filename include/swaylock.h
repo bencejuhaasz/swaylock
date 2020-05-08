@@ -84,8 +84,9 @@ struct swaylock_password {
 
 struct swaylock_touch {
 	bool pressed;
-	int32_t x;
-	int32_t y;
+	uint32_t x;
+	uint32_t y;
+  uint32_t current_pressed;
   uint32_t buttons_area_width, buttons_area_height;
   uint32_t button_spacing, button_width, button_height;
   
@@ -95,9 +96,6 @@ struct swaylock_state {
 	struct loop *eventloop;
 	struct loop_timer *clear_indicator_timer; // clears the indicator
 	struct loop_timer *clear_password_timer; // clears the password buffer
-	struct loop_timer *first_unlock_timer; // time to long tap unlock
-	struct loop_timer *continuous_render_timer; //continuous rendering
-	struct loop_timer *first_unlock_done_timer; // for first_unlock_done
 	struct wl_display *display;
 	struct wl_compositor *compositor;
 	struct wl_subcompositor *subcompositor;
@@ -151,7 +149,7 @@ void swaylock_handle_key(struct swaylock_state *state, xkb_keysym_t keysym,
 			 uint32_t codepoint);
 void swaylock_handle_touch(struct swaylock_state *state, enum touch_event event,
 			   int x, int y);
-bool swaylock_touch_key_pressed(struct swaylock_touch *touch);
+int32_t swaylock_touch_key_pressed(struct swaylock_touch *touch);
 void swaylock_touch_recalculate_keys(struct swaylock_state *state, uint32_t new_width,
 			    uint32_t new_height);
 void render_frame_background(struct swaylock_surface *surface);

@@ -1121,6 +1121,7 @@ int main(int argc, char **argv) {
 		.show_failed_attempts = false,
 		.indicator_idle_visible = false
 	};
+	state.touch.current_pressed = -1;
 	wl_list_init(&state.images);
 	set_default_colors(&state.args.colors);
 

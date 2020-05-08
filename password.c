@@ -65,6 +65,7 @@ static void clear_password(void *data) {
 	struct swaylock_state *state = data;
 	state->clear_password_timer = NULL;
 	state->auth_state = AUTH_STATE_CLEAR;
+	state->render_state = RENDER_STATE_INITIAL;
 	clear_password_buffer(&state->password);
 	damage_state(state);
 	schedule_indicator_clear(state);
@@ -176,13 +177,19 @@ void swaylock_handle_touch(struct swaylock_state *state,
 			state->touch.pressed = true;
 			state->touch.x = x;
 			state->touch.y = y;
+
 			if (state->render_state == RENDER_STATE_INITIAL) {
 				state->render_state = RENDER_STATE_PIN;
+			} else if (state->render_state == RENDER_STATE_PIN) {
+			  state->touch.current_pressed = swaylock_touch_key_pressed(&state->touch);
 			}
 		}
+		schedule_password_clear(state);
 		break;
 	case TOUCH_EVENT_UP:
 		state->touch.pressed = false;
+		schedule_password_clear(state);
+		state->touch.current_pressed = -1;
 		break;
 	case TOUCH_EVENT_MOTION:
 		if (x > 100 && y > 100) { //TODO check if it's just my touch
@@ -205,4 +212,26 @@ void swaylock_touch_recalculate_keys(struct swaylock_state *state, uint32_t new_
 	state->touch.button_spacing =
 		(state->touch.buttons_area_width - state->touch.button_width * 3) / 4;
 	state->touch.button_height = state->touch.button_width;
+}
+
+int32_t swaylock_touch_key_pressed(struct swaylock_touch *touch) {
+	if (!touch->pressed) {
+		return -1;
+	}
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 3; j++) {
+			int current_button = i * 3 + j;
+			uint32_t button_x = touch->button_spacing * (j + 1) +
+					    touch->button_width * j;
+			uint32_t button_y = touch->button_spacing * (i + 1) +
+					    touch->button_height * i;
+			uint32_t button_xr = button_x + touch->button_width;
+			uint32_t button_yr = button_y + touch->button_height;
+			if (touch->x >= button_x && touch->x <= button_xr &&
+			    touch->y >= button_y && touch->y <= button_yr) {
+				return current_button;
+			}
+		}
+	}
+	return -1;
 }
