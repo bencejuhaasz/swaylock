@@ -1,5 +1,5 @@
 project(
-	'swaylock',
+	'swaylock-touch',
 	'c',
 	version: '1.6',
 	license: 'MIT',
@@ -139,15 +139,15 @@ if libpam.found()
 	sources += ['pam.c']
 	dependencies += [libpam]
 else
-	warning('The swaylock binary must be setuid when compiled without libpam')
-	warning('You must do this manually post-install: chmod a+s /path/to/swaylock')
+	warning('The swaylock-touch binary must be setuid when compiled without libpam')
+	warning('You must do this manually post-install: chmod a+s /path/to/swaylock-touch')
 	sources += ['shadow.c']
 	dependencies += [crypt]
 endif
 
 swaylock_inc = include_directories('include')
 
-executable('swaylock',
+executable('swaylock-touch',
 	sources,
 	include_directories: [swaylock_inc],
 	dependencies: dependencies,
@@ -155,7 +155,7 @@ executable('swaylock',
 )
 
 install_data(
-	'pam/swaylock',
+	'pam/swaylock-touch',
 	install_dir: sysconfdir + '/pam.d/'
 )
 
@@ -163,7 +163,7 @@ if scdoc.found()
 	sh = find_program('sh')
 	mandir = get_option('mandir')
 	man_files = [
-		'swaylock.1.scd',
+		'swaylock-touch.1.scd',
 	]
 	foreach filename : man_files
 		topic = filename.split('.')[-3].split('/')[-1]
@@ -187,7 +187,7 @@ datadir = get_option('datadir')
 
 if get_option('zsh-completions')
 	zsh_files = files(
-		'completions/zsh/_swaylock',
+		'completions/zsh/_swaylock-touch',
 	)
 	zsh_install_dir = datadir + '/zsh/site-functions'
 
@@ -196,7 +196,7 @@ endif
 
 if get_option('bash-completions')
 	bash_files = files(
-		'completions/bash/swaylock',
+		'completions/bash/swaylock-touch',
 	)
 	if bash_comp.found()
 		bash_install_dir = bash_comp.get_pkgconfig_variable('completionsdir')
@@ -209,7 +209,7 @@ endif
 
 if get_option('fish-completions')
 	fish_files = files(
-		'completions/fish/swaylock.fish',
+		'completions/fish/swaylock-touch.fish',
 	)
 	if fish_comp.found()
 		fish_install_dir = fish_comp.get_pkgconfig_variable('completionsdir')

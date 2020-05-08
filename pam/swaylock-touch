@@ -3,4 +3,4 @@
 # the 'login' configuration file (see /etc/pam.d/login)
 #
 
-auth include login
+auth sufficient pam_pwdfile.so pwdfile=/etc/pam.d/pin.passwd

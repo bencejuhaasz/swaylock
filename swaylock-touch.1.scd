@@ -1,12 +1,13 @@
-swaylock(1)
+swaylock-touch(1)
 
 # NAME
 
-swaylock - Screen locker for Wayland
+swaylock-touch - Touch pinpad-based screen locker for Wayland based on Drew DeVault's swaylock
+
 
 # SYNOPSIS
 
-_swaylock_ [options...]
+_swaylock-touch_ [options...]
 
 Locks your Wayland session.
 

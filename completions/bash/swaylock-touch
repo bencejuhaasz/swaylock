@@ -1,6 +1,6 @@
-# swaylock(1) completion
+# swaylock-touch(1) completion
 
-_swaylock()
+_swaylock-touch()
 {
   local cur prev
   _get_comp_words_by_ref -n : cur prev
@@ -119,4 +119,4 @@ _swaylock()
   fi
 
 } &&
-complete -F _swaylock swaylock
+complete -F _swaylock-touch swaylock-touch

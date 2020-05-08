@@ -1,6 +1,6 @@
-# swaylock
+# swaylock-touch
 
-swaylock is a screen locking utility for Wayland compositors. It is compatible
+swaylock-touch is a touchscreen pinpad screen locking utility for Wayland compositor based on swaywm/swaylock. It is compatible
 with any Wayland compositor which implements the following Wayland protocols:
 
 - wlr-layer-shell
@@ -8,7 +8,7 @@ with any Wayland compositor which implements the following Wayland protocols:
 - xdg-output
 - xdg-shell
 
-See the man page, `swaylock(1)`, for instructions on using swaylock.
+See the man page, `swaylock-touch(1)`, for instructions on using swaylock.
 
 ## Release Signatures
 
@@ -17,14 +17,6 @@ and published [on GitHub](https://github.com/swaywm/swaylock/releases). swaylock
 releases are managed independently of sway releases.
 
 ## Installation
-
-### From Packages
-
-Swaylock is available in many distributions. Try installing the "swaylock"
-package for yours.
-
-If you're interested in packaging swaylock for your distribution, stop by the
-IRC channel or shoot an email to sir@cmpwn.com for advice.
 
 ### Compiling from Source
 
@@ -50,8 +42,8 @@ Run these commands:
     ninja -C build
     sudo ninja -C build install
 
-On systems without PAM, you need to suid the swaylock binary:
+On systems without PAM, you need to suid the swaylock-touch binary:
 
-    sudo chmod a+s /usr/local/bin/swaylock
+    sudo chmod a+s /usr/local/bin/swaylock-touch
 
-Swaylock will drop root permissions shortly after startup.
+Swaylock-touch will drop root permissions shortly after startup.
