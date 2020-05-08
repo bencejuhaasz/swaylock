@@ -23,8 +23,6 @@ enum render_state {
 	RENDER_STATE_INITIAL,
 	RENDER_STATE_KEYBOARD,
 	RENDER_STATE_PIN,
-	RENDER_STATE_FIRST_UNLOCK,
-	RENDER_STATE_FIRST_UNLOCK_DONE,
 };
 
 enum touch_event {
@@ -88,7 +86,7 @@ struct swaylock_touch {
 	bool pressed;
 	int32_t x;
 	int32_t y;
-  uint32_t buttons_area_x, buttons_area_y;
+  uint32_t buttons_area_width, buttons_area_height;
   uint32_t button_spacing, button_width, button_height;
   
 };

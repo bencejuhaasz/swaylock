@@ -166,7 +166,7 @@ static void layer_surface_configure(void *data,
 		struct zwlr_layer_surface_v1 *layer_surface,
 		uint32_t serial, uint32_t width, uint32_t height) {
 	struct swaylock_surface *surface = data;
-	//TODO recalculate buttons here
+	swaylock_touch_recalculate_keys(surface->state, width, height);
 	surface->width = width;
 	surface->height = height;
 	surface->indicator_width = 1;
