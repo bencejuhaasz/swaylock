@@ -86,7 +86,7 @@ struct swaylock_touch {
 	bool pressed;
 	uint32_t x;
 	uint32_t y;
-  uint32_t current_pressed;
+  int32_t current_pressed;
   uint32_t buttons_area_width, buttons_area_height;
   uint32_t button_spacing, button_width, button_height;
   

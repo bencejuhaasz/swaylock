@@ -13,6 +13,8 @@
 #include "buttons.h"
 #include "unicode.h"
 
+const int codepoints[12] = { 49, 50, 51, 52, 53, 54, 55, 56, 57, 8, 48, 13 };
+
 void clear_buffer(char *buf, size_t size) {
 	// Use volatile keyword so so compiler can't optimize this out.
 	volatile char *buffer = buf;
@@ -182,6 +184,16 @@ void swaylock_handle_touch(struct swaylock_state *state,
 				state->render_state = RENDER_STATE_PIN;
 			} else if (state->render_state == RENDER_STATE_PIN) {
 			  state->touch.current_pressed = swaylock_touch_key_pressed(&state->touch);
+			  if (state->touch.current_pressed != -1) {
+			    int codepoint = codepoints[state->touch.current_pressed];
+			    if (codepoint == 8) {
+			      backspace(&state->password);
+			    } else if (codepoint == 13) {
+			      submit_password(state);
+			    } else {
+			      append_ch(&state->password, codepoint);
+			    }
+			  }
 			}
 		}
 		schedule_password_clear(state);
