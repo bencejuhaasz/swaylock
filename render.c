@@ -458,7 +458,7 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 	cairo_text_extents_t pw_extents;
 	cairo_text_extents(cairo, pwline, &pw_extents);
 
-	cairo_move_to(cairo, buffer_width / 2 - pw_extents.width / 2, text_area_height );
+	cairo_move_to(cairo, buffer_width / 2 - pw_extents.width / 2, text_area_height - font_size / 2);
 	cairo_show_text(cairo, pwline);
 
 	set_color_for_state(cairo, state, &state->args.colors.line);
