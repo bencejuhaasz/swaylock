@@ -98,10 +98,20 @@ static void submit_password(struct swaylock_state *state) {
 
 void swaylock_handle_key(struct swaylock_state *state,
 		xkb_keysym_t keysym, uint32_t codepoint) {
+	// if key's empty just clear state and return
+	if (codepoint == 0) {
+		state->touch.current_pressed = -1;
+		state->touch.pressed = false;
+		damage_state(state);
+		return;
+	}
+
 	// Ignore input events if validating
 	if (state->auth_state == AUTH_STATE_VALIDATING) {
 		return;
 	}
+
+	state->touch.pressed = true;
 
 	if (state->render_state == RENDER_STATE_INITIAL) {
 	  state->render_state = RENDER_STATE_PIN;
@@ -167,7 +177,7 @@ void swaylock_handle_key(struct swaylock_state *state,
 		// fallthrough
 	default:
 		if (codepoint) {
-		  state->touch.current_pressed = codepoint - 49;
+			state->touch.current_pressed = codepoint - 49;
 			append_ch(&state->password, codepoint);
 			state->auth_state = AUTH_STATE_INPUT;
 			damage_state(state);
