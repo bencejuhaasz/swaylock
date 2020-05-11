@@ -49,10 +49,16 @@ struct swaylock_colors {
 	uint32_t layout_background;
 	uint32_t layout_border;
 	uint32_t layout_text;
+	uint32_t input_text;
+	uint32_t button_background;
+	uint32_t button_background_pressed;
+	uint32_t button_border;
+	uint32_t button_text;
 	struct swaylock_colorset inside;
 	struct swaylock_colorset line;
 	struct swaylock_colorset ring;
 	struct swaylock_colorset text;
+	struct swaylock_colorset button;
 };
 
 struct swaylock_args {

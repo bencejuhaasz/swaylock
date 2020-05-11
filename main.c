@@ -464,6 +464,11 @@ static void set_default_colors(struct swaylock_colors *colors) {
 	colors->layout_background = 0x000000C0;
 	colors->layout_border = 0x00000000;
 	colors->layout_text = 0xFFFFFFFF;
+	colors->button_background = 0xC0C0C0C0;
+	colors->button_background_pressed = 0xFFFFFFFF;
+	colors->button_border = 0x00C0C0C0;
+	colors->button_text = 0xB0B0B0FF;
+	colors->input_text = 0xB0B0B0FF;
 	colors->inside = (struct swaylock_colorset){
 		.input = 0x000000C0,
 		.cleared = 0xE5A445C0,
