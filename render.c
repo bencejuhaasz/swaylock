@@ -430,9 +430,6 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 
 	cairo_t *cairo = surface->current_buffer->cairo;
 
-	cairo_rectangle(cairo, 0, 0, buffer_width, buffer_height);
-	cairo_stroke(cairo);
-
 	cairo_set_line_width(cairo, state->args.thickness * surface->scale);
 	cairo_set_line_join(cairo, CAIRO_LINE_JOIN_ROUND);
 
@@ -443,6 +440,33 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 	} else {
 		cairo_set_font_size(cairo, 50);
 	}
+
+
+	char *pwline;
+
+	switch (state->auth_state) {
+	case AUTH_STATE_VALIDATING:
+		pwline = "validating";
+		break;
+	case AUTH_STATE_INVALID:
+		pwline = "wrong";
+		break;
+	default:
+		pwline = calloc(state->password.len, sizeof(char));
+		for (int i = 0; i < (int)state->password.len; i++) {
+			pwline[i] = '*';
+		}
+	}
+
+	cairo_text_extents_t pw_extents;
+	cairo_text_extents(cairo, pwline, &pw_extents);
+
+	cairo_move_to(cairo, buffer_width / 2 - pw_extents.width / 2, text_area_height / 2);
+	cairo_show_text(cairo, pwline);
+	  	
+	cairo_move_to(cairo, button_spacing, text_area_height);
+	cairo_line_to(cairo, buffer_width - button_spacing, text_area_height);
+	cairo_stroke(cairo);
 
 	int32_t pressed_button = state->touch.current_pressed;
 

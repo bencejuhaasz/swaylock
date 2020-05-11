@@ -110,10 +110,12 @@ void swaylock_handle_key(struct swaylock_state *state,
 	switch (keysym) {
 	case XKB_KEY_KP_Enter: /* fallthrough */
 	case XKB_KEY_Return:
+	  state->touch.current_pressed = 11;
 		submit_password(state);
 		break;
 	case XKB_KEY_Delete:
 	case XKB_KEY_BackSpace:
+	  state->touch.current_pressed = 9;
 		if (backspace(&state->password)) {
 			state->auth_state = AUTH_STATE_BACKSPACE;
 		} else {
@@ -165,6 +167,7 @@ void swaylock_handle_key(struct swaylock_state *state,
 		// fallthrough
 	default:
 		if (codepoint) {
+		  state->touch.current_pressed = codepoint - 49;
 			append_ch(&state->password, codepoint);
 			state->auth_state = AUTH_STATE_INPUT;
 			damage_state(state);
@@ -177,6 +180,10 @@ void swaylock_handle_key(struct swaylock_state *state,
 
 void swaylock_handle_touch(struct swaylock_state *state,
 			   enum touch_event event, int x, int y) {
+	if (state->auth_state == AUTH_STATE_VALIDATING ||
+	    state->auth_state == AUTH_STATE_INVALID) {
+		return;
+	}
 	switch (event) {
 	case TOUCH_EVENT_DOWN:
 		if (!state->touch.pressed) {
@@ -225,7 +232,7 @@ void swaylock_handle_touch(struct swaylock_state *state,
 void swaylock_touch_recalculate_keys(struct swaylock_state *state, uint32_t new_width, uint32_t new_height) {
 	uint32_t minimum_dimension =
 		(new_width < new_height) ? new_width : new_height;
-	state->touch.text_area_height = minimum_dimension / 4;
+	state->touch.text_area_height = minimum_dimension / 8;
 	state->touch.buttons_area_height = minimum_dimension * 3 / 4;
 	state->touch.buttons_area_width =
 		state->touch.buttons_area_height * 3 / 4;

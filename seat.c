@@ -61,6 +61,8 @@ static void keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
 	uint32_t codepoint = xkb_state_key_get_utf32(state->xkb.state, keycode);
 	if (key_state == WL_KEYBOARD_KEY_STATE_PRESSED) {
 		swaylock_handle_key(state, sym, codepoint);
+	} else {
+	  state->touch.current_pressed = -1; //CRUTCH
 	}
 }
 
