@@ -1005,9 +1005,9 @@ static bool file_exists(const char *path) {
 
 static char *get_config_path(void) {
 	static const char *config_paths[] = {
-		"$HOME/.swaylock/config",
-		"$XDG_CONFIG_HOME/swaylock/config",
-		SYSCONFDIR "/swaylock/config",
+		"$HOME/.swaylock-touch/config",
+		"$XDG_CONFIG_HOME/swaylock-touch/config",
+		SYSCONFDIR "/swaylock-touch/config",
 	};
 
 	char *config_home = getenv("XDG_CONFIG_HOME");

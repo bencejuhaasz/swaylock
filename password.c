@@ -103,6 +103,10 @@ void swaylock_handle_key(struct swaylock_state *state,
 		return;
 	}
 
+	if (state->render_state == RENDER_STATE_INITIAL) {
+	  state->render_state = RENDER_STATE_PIN;
+	}
+
 	switch (keysym) {
 	case XKB_KEY_KP_Enter: /* fallthrough */
 	case XKB_KEY_Return:
@@ -183,17 +187,21 @@ void swaylock_handle_touch(struct swaylock_state *state,
 			if (state->render_state == RENDER_STATE_INITIAL) {
 				state->render_state = RENDER_STATE_PIN;
 			} else if (state->render_state == RENDER_STATE_PIN) {
-			  state->touch.current_pressed = swaylock_touch_key_pressed(&state->touch);
-			  if (state->touch.current_pressed != -1) {
-			    int codepoint = codepoints[state->touch.current_pressed];
-			    if (codepoint == 8) {
-			      backspace(&state->password);
-			    } else if (codepoint == 13) {
-			      submit_password(state);
-			    } else {
-			      append_ch(&state->password, codepoint);
-			    }
-			  }
+				state->touch.current_pressed =
+					swaylock_touch_key_pressed(
+						&state->touch);
+				if (state->touch.current_pressed != -1) {
+					int codepoint = codepoints
+						[state->touch.current_pressed];
+					if (codepoint == 8) {
+						backspace(&state->password);
+					} else if (codepoint == 13) {
+						submit_password(state);
+					} else {
+						append_ch(&state->password,
+							  codepoint);
+					}
+				}
 			}
 		}
 		schedule_password_clear(state);
@@ -217,6 +225,7 @@ void swaylock_handle_touch(struct swaylock_state *state,
 void swaylock_touch_recalculate_keys(struct swaylock_state *state, uint32_t new_width, uint32_t new_height) {
 	uint32_t minimum_dimension =
 		(new_width < new_height) ? new_width : new_height;
+	state->touch.text_area_height = minimum_dimension / 4;
 	state->touch.buttons_area_height = minimum_dimension * 3 / 4;
 	state->touch.buttons_area_width =
 		state->touch.buttons_area_height * 3 / 4;
@@ -224,6 +233,7 @@ void swaylock_touch_recalculate_keys(struct swaylock_state *state, uint32_t new_
 	state->touch.button_spacing =
 		(state->touch.buttons_area_width - state->touch.button_width * 3) / 4;
 	state->touch.button_height = state->touch.button_width;
+	state->touch.buttons_area_height += state->touch.text_area_height;
 }
 
 int32_t swaylock_touch_key_pressed(struct swaylock_touch *touch) {
@@ -236,7 +246,7 @@ int32_t swaylock_touch_key_pressed(struct swaylock_touch *touch) {
 			uint32_t button_x = touch->button_spacing * (j + 1) +
 					    touch->button_width * j;
 			uint32_t button_y = touch->button_spacing * (i + 1) +
-					    touch->button_height * i;
+					    touch->button_height * i + touch->text_area_height;
 			uint32_t button_xr = button_x + touch->button_width;
 			uint32_t button_yr = button_y + touch->button_height;
 			if (touch->x >= button_x && touch->x <= button_xr &&

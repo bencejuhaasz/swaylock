@@ -419,6 +419,7 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 	uint32_t button_spacing = state->touch.button_spacing;
 	uint32_t button_width = state->touch.button_width;
 	uint32_t button_height = state->touch.button_height;
+	uint32_t text_area_height = state->touch.text_area_height;
 
 	if (!render_prepare_surface(surface,
 				    (surface->width - buffer_width) / 2,
@@ -428,6 +429,9 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 	}
 
 	cairo_t *cairo = surface->current_buffer->cairo;
+
+	cairo_rectangle(cairo, 0, 0, buffer_width, buffer_height);
+	cairo_stroke(cairo);
 
 	cairo_set_line_width(cairo, state->args.thickness * surface->scale);
 	cairo_set_line_join(cairo, CAIRO_LINE_JOIN_ROUND);
@@ -452,14 +456,14 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 		  cairo_set_source_u32(cairo, fill_color);
 		  cairo_rectangle(cairo,
 				  button_spacing * (j + 1) + button_width * j,
-				  button_spacing * (i + 1) + button_height * i,
+				  button_spacing * (i + 1) + button_height * i + text_area_height,
 				  button_width, button_height);
 		  cairo_fill(cairo);
 
 		  cairo_set_source_u32(cairo, state->args.colors.bs_highlight);
 		  cairo_rectangle(cairo,
 				  button_spacing * (j + 1) + button_width * j,
-				  button_spacing * (i + 1) + button_height * i,
+				  button_spacing * (i + 1) + button_height * i + text_area_height,
 				  button_width, button_height);
 		  cairo_stroke(cairo);
 
@@ -471,7 +475,7 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 				button_spacing * (j + 1) + button_width * j +
 					button_width / 2 - extents.width / 2,
 				button_spacing * (i + 1) + button_height * i +
-					button_height / 2 + extents.height / 2);
+					button_height / 2 + extents.height / 2 + text_area_height);
 		  cairo_show_text(cairo, buttons[current_button]);
 		}
 	}
