@@ -23,20 +23,7 @@ static void set_color_for_state(cairo_t *cairo, struct swaylock_state *state,
 	} else if (state->auth_state == AUTH_STATE_INVALID) {
 		cairo_set_source_u32(cairo, colorset->wrong);
 	} else {
-		if (state->xkb.caps_lock &&
-		    state->args.show_caps_lock_indicator) {
-			cairo_set_source_u32(cairo, colorset->caps_lock);
-		} else if (state->xkb.caps_lock &&
-			   !state->args.show_caps_lock_indicator &&
-			   state->args.show_caps_lock_text) {
-			uint32_t inputtextcolor = state->args.colors.text.input;
-			state->args.colors.text.input =
-				state->args.colors.text.caps_lock;
-			cairo_set_source_u32(cairo, colorset->input);
-			state->args.colors.text.input = inputtextcolor;
-		} else {
-			cairo_set_source_u32(cairo, colorset->input);
-		}
+		cairo_set_source_u32(cairo, colorset->input);
 	}
 }
 
@@ -114,6 +101,7 @@ bool render_prepare_surface(struct swaylock_surface *surface, int subsurf_xpos,
 
 void render_frame_touch_pin(struct swaylock_surface *surface) {
 	struct swaylock_state *state = surface->state;
+
 	uint32_t buffer_width = state->touch.buttons_area_width;
 	uint32_t buffer_height = state->touch.buttons_area_height;
 	uint32_t button_spacing = state->touch.button_spacing;
@@ -135,7 +123,10 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 
 	cairo_select_font_face(cairo, state->args.font, CAIRO_FONT_SLANT_NORMAL,
 			       CAIRO_FONT_WEIGHT_NORMAL);
-	uint32_t font_size = (state->args.font_size > 0 && state->args.font_size < 100) ? state->args.font_size : 50;
+	uint32_t font_size =
+		(state->args.font_size > 0 && state->args.font_size < 100) ?
+			state->args.font_size :
+			50;
 	cairo_set_font_size(cairo, font_size);
 
 	/*Show input text*/
