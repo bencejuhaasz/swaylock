@@ -58,7 +58,6 @@ struct swaylock_colors {
 	struct swaylock_colorset line;
 	struct swaylock_colorset ring;
 	struct swaylock_colorset text;
-	struct swaylock_colorset button;
 };
 
 struct swaylock_args {

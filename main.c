@@ -1017,7 +1017,7 @@ static char *get_config_path(void) {
 
 	char *config_home = getenv("XDG_CONFIG_HOME");
 	if (!config_home || config_home[0] == '\0') {
-		config_paths[1] = "$HOME/.config/swaylock/config";
+		config_paths[1] = "$HOME/.config/swaylock-touch/config";
 	}
 
 	wordexp_t p;
