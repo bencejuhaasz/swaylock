@@ -437,11 +437,8 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 
 	cairo_select_font_face(cairo, state->args.font, CAIRO_FONT_SLANT_NORMAL,
 			       CAIRO_FONT_WEIGHT_NORMAL);
-	if (state->args.font_size > 0 && state->args.font_size < 100) {
-		cairo_set_font_size(cairo, state->args.font_size);
-	} else {
-		cairo_set_font_size(cairo, 50);
-	}
+	uint32_t font_size = (state->args.font_size > 0 && state->args.font_size < 100) ? state->args.font_size : 50;
+	cairo_set_font_size(cairo, font_size);
 
 	char *pwline;
 	switch (state->auth_state) {
@@ -461,7 +458,7 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 	cairo_text_extents_t pw_extents;
 	cairo_text_extents(cairo, pwline, &pw_extents);
 
-	cairo_move_to(cairo, buffer_width / 2 - pw_extents.width / 2, text_area_height / 2);
+	cairo_move_to(cairo, buffer_width / 2 - pw_extents.width / 2, text_area_height );
 	cairo_show_text(cairo, pwline);
 
 	set_color_for_state(cairo, state, &state->args.colors.line);
@@ -486,7 +483,7 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 				  button_width, button_height);
 		  cairo_fill(cairo);
 
-		  cairo_set_source_u32(cairo, state->args.colors.bs_highlight);
+		  cairo_set_source_u32(cairo, state->args.colors.key_highlight);
 		  cairo_rectangle(cairo,
 				  button_spacing * (j + 1) + button_width * j,
 				  button_spacing * (i + 1) + button_height * i + text_area_height,
