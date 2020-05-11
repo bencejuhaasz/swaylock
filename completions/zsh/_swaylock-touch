@@ -4,6 +4,10 @@
 #
 
 _arguments -s \
+	'(--button-background-color)'--button-background-color'[Button background color]:color:' \
+	'(--button-background-pressed-color)'--button-background-pressed-color'[Button background color when pressed]:color:' \
+	'(--button-border-color)'--button-border-color'[Button border color]:color:' \
+	'(--button-text-color)'--button-text-color'[Button text color]:color:' \
 	'(--bs-hl-color)'--bs-hl-color'[Sets the color of backspace highlight segments]:color:' \
 	'(--caps-lock-bs-hl-color)'--caps-lock-bs-hl-color'[Sets the color of backspace highlight segments when Caps Lock is active]:color:' \
 	'(--caps-lock-key-hl-color)'--caps-lock-key-hl-color'[Sets the color of the key press highlight segments when Caps Lock is active]:color:' \

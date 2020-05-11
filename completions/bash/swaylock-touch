@@ -27,6 +27,10 @@ _swaylock-touch()
   )
 
   long=(
+  	--button-background-color
+	--button-background-pressed-color
+	--button-border-color 
+	--button-text-color 
     --bs-hl-color
     --caps-lock-bs-hl-color
     --caps-lock-key-hl-color

@@ -543,9 +543,17 @@ static int parse_options(int argc, char **argv, struct swaylock_state *state,
 		LO_TEXT_CAPS_LOCK_COLOR,
 		LO_TEXT_VER_COLOR,
 		LO_TEXT_WRONG_COLOR,
+		LO_BUTTON_BACKGROUND_COLOR,
+		LO_BUTTON_BACKGROUND_PRESSED_COLOR,
+		LO_BUTTON_BORDER_COLOR,
+		LO_BUTTON_TEXT_COLOR,
 	};
 
 	static struct option long_options[] = {
+		{"button-background-color", required_argument, NULL, LO_BUTTON_BACKGROUND_COLOR},
+		{"button-background-pressed-color", required_argument, NULL, LO_BUTTON_BACKGROUND_PRESSED_COLOR},
+		{"button-border-color", required_argument, NULL, LO_BUTTON_BORDER_COLOR},
+		{"button-text-color", required_argument, NULL, LO_BUTTON_TEXT_COLOR},
 		{"config", required_argument, NULL, 'C'},
 		{"color", required_argument, NULL, 'c'},
 		{"debug", no_argument, NULL, 'd'},
@@ -605,120 +613,128 @@ static int parse_options(int argc, char **argv, struct swaylock_state *state,
 	const char usage[] =
 		"Usage: swaylock [options...]\n"
 		"\n"
+		"  --button-background-color        "
+		"Button background color.\n"
+		"  --button-background-pressed-color "
+		"Button background color when pressed.\n"
+		"  --button-border-color             "
+		"Button border color.\n"
+		"  --button-text-color               "
+		"Button text color.\n"
 		"  -C, --config <config_file>       "
-			"Path to the config file.\n"
+		"Path to the config file.\n"
 		"  -c, --color <color>              "
-			"Turn the screen into the given color instead of white.\n"
+		"Turn the screen into the given color instead of white.\n"
 		"  -d, --debug                      "
-			"Enable debugging output.\n"
+		"Enable debugging output.\n"
 		"  -e, --ignore-empty-password      "
-			"When an empty password is provided, do not validate it.\n"
+		"When an empty password is provided, do not validate it.\n"
 		"  -F, --show-failed-attempts       "
-			"Show current count of failed authentication attempts.\n"
+		"Show current count of failed authentication attempts.\n"
 		"  -f, --daemonize                  "
-			"Detach from the controlling terminal after locking.\n"
+		"Detach from the controlling terminal after locking.\n"
 		"  -h, --help                       "
-			"Show help message and quit.\n"
+		"Show help message and quit.\n"
 		"  -i, --image [[<output>]:]<path>  "
-			"Display the given image, optionally only on the given output.\n"
+		"Display the given image, optionally only on the given output.\n"
 		"  -k, --show-keyboard-layout       "
-			"Display the current xkb layout while typing.\n"
+		"Display the current xkb layout while typing.\n"
 		"  -K, --hide-keyboard-layout       "
-			"Hide the current xkb layout while typing.\n"
+		"Hide the current xkb layout while typing.\n"
 		"  -L, --disable-caps-lock-text     "
-			"Disable the Caps Lock text.\n"
+		"Disable the Caps Lock text.\n"
 		"  -l, --indicator-caps-lock        "
-			"Show the current Caps Lock state also on the indicator.\n"
+		"Show the current Caps Lock state also on the indicator.\n"
 		"  -s, --scaling <mode>             "
-			"Image scaling mode: stretch, fill, fit, center, tile, solid_color.\n"
+		"Image scaling mode: stretch, fill, fit, center, tile, solid_color.\n"
 		"  -t, --tiling                     "
-			"Same as --scaling=tile.\n"
+		"Same as --scaling=tile.\n"
 		"  -u, --no-unlock-indicator        "
-			"Disable the unlock indicator.\n"
+		"Disable the unlock indicator.\n"
 		"  -v, --version                    "
-			"Show the version number and quit.\n"
+		"Show the version number and quit.\n"
 		"  --bs-hl-color <color>            "
-			"Sets the color of backspace highlight segments.\n"
+		"Sets the color of backspace highlight segments.\n"
 		"  --caps-lock-bs-hl-color <color>  "
-			"Sets the color of backspace highlight segments when Caps Lock "
-			"is active.\n"
+		"Sets the color of backspace highlight segments when Caps Lock "
+		"is active.\n"
 		"  --caps-lock-key-hl-color <color> "
-			"Sets the color of the key press highlight segments when "
-			"Caps Lock is active.\n"
+		"Sets the color of the key press highlight segments when "
+		"Caps Lock is active.\n"
 		"  --font <font>                    "
-			"Sets the font of the text.\n"
+		"Sets the font of the text.\n"
 		"  --font-size <size>               "
-			"Sets a fixed font size for the indicator text.\n"
+		"Sets a fixed font size for the indicator text.\n"
 		"  --indicator-idle-visible         "
-			"Sets the indicator to show even if idle.\n"
+		"Sets the indicator to show even if idle.\n"
 		"  --indicator-radius <radius>      "
-			"Sets the indicator radius.\n"
+		"Sets the indicator radius.\n"
 		"  --indicator-thickness <thick>    "
-			"Sets the indicator thickness.\n"
+		"Sets the indicator thickness.\n"
 		"  --indicator-x-position <x>       "
-			"Sets the horizontal position of the indicator.\n"
+		"Sets the horizontal position of the indicator.\n"
 		"  --indicator-y-position <y>       "
-			"Sets the vertical position of the indicator.\n"
+		"Sets the vertical position of the indicator.\n"
 		"  --inside-color <color>           "
-			"Sets the color of the inside of the indicator.\n"
+		"Sets the color of the inside of the indicator.\n"
 		"  --inside-clear-color <color>     "
-			"Sets the color of the inside of the indicator when cleared.\n"
+		"Sets the color of the inside of the indicator when cleared.\n"
 		"  --inside-caps-lock-color <color> "
-			"Sets the color of the inside of the indicator when Caps Lock "
-			"is active.\n"
+		"Sets the color of the inside of the indicator when Caps Lock "
+		"is active.\n"
 		"  --inside-ver-color <color>       "
-			"Sets the color of the inside of the indicator when verifying.\n"
+		"Sets the color of the inside of the indicator when verifying.\n"
 		"  --inside-wrong-color <color>     "
-			"Sets the color of the inside of the indicator when invalid.\n"
+		"Sets the color of the inside of the indicator when invalid.\n"
 		"  --key-hl-color <color>           "
-			"Sets the color of the key press highlight segments.\n"
+		"Sets the color of the key press highlight segments.\n"
 		"  --layout-bg-color <color>        "
-			"Sets the background color of the box containing the layout text.\n"
+		"Sets the background color of the box containing the layout text.\n"
 		"  --layout-border-color <color>    "
-			"Sets the color of the border of the box containing the layout text.\n"
+		"Sets the color of the border of the box containing the layout text.\n"
 		"  --layout-text-color <color>      "
-			"Sets the color of the layout text.\n"
+		"Sets the color of the layout text.\n"
 		"  --line-color <color>             "
-			"Sets the color of the line between the inside and ring.\n"
+		"Sets the color of the line between the inside and ring.\n"
 		"  --line-clear-color <color>       "
-			"Sets the color of the line between the inside and ring when "
-			"cleared.\n"
+		"Sets the color of the line between the inside and ring when "
+		"cleared.\n"
 		"  --line-caps-lock-color <color>   "
-			"Sets the color of the line between the inside and ring when "
-			"Caps Lock is active.\n"
+		"Sets the color of the line between the inside and ring when "
+		"Caps Lock is active.\n"
 		"  --line-ver-color <color>         "
-			"Sets the color of the line between the inside and ring when "
-			"verifying.\n"
+		"Sets the color of the line between the inside and ring when "
+		"verifying.\n"
 		"  --line-wrong-color <color>       "
-			"Sets the color of the line between the inside and ring when "
-			"invalid.\n"
+		"Sets the color of the line between the inside and ring when "
+		"invalid.\n"
 		"  -n, --line-uses-inside           "
-			"Use the inside color for the line between the inside and ring.\n"
+		"Use the inside color for the line between the inside and ring.\n"
 		"  -r, --line-uses-ring             "
-			"Use the ring color for the line between the inside and ring.\n"
+		"Use the ring color for the line between the inside and ring.\n"
 		"  --ring-color <color>             "
-			"Sets the color of the ring of the indicator.\n"
+		"Sets the color of the ring of the indicator.\n"
 		"  --ring-clear-color <color>       "
-			"Sets the color of the ring of the indicator when cleared.\n"
+		"Sets the color of the ring of the indicator when cleared.\n"
 		"  --ring-caps-lock-color <color>   "
-			"Sets the color of the ring of the indicator when Caps Lock "
-			"is active.\n"
+		"Sets the color of the ring of the indicator when Caps Lock "
+		"is active.\n"
 		"  --ring-ver-color <color>         "
-			"Sets the color of the ring of the indicator when verifying.\n"
+		"Sets the color of the ring of the indicator when verifying.\n"
 		"  --ring-wrong-color <color>       "
-			"Sets the color of the ring of the indicator when invalid.\n"
+		"Sets the color of the ring of the indicator when invalid.\n"
 		"  --separator-color <color>        "
-			"Sets the color of the lines that separate highlight segments.\n"
+		"Sets the color of the lines that separate highlight segments.\n"
 		"  --text-color <color>             "
-			"Sets the color of the text.\n"
+		"Sets the color of the text.\n"
 		"  --text-clear-color <color>       "
-			"Sets the color of the text when cleared.\n"
+		"Sets the color of the text when cleared.\n"
 		"  --text-caps-lock-color <color>   "
-			"Sets the color of the text when Caps Lock is active.\n"
+		"Sets the color of the text when Caps Lock is active.\n"
 		"  --text-ver-color <color>         "
-			"Sets the color of the text when verifying.\n"
+		"Sets the color of the text when verifying.\n"
 		"  --text-wrong-color <color>       "
-			"Sets the color of the text when invalid.\n"
+		"Sets the color of the text when invalid.\n"
 		"\n"
 		"All <color> options are of the form <rrggbb[aa]>.\n";
 
@@ -816,6 +832,30 @@ static int parse_options(int argc, char **argv, struct swaylock_state *state,
 		case 'v':
 			fprintf(stdout, "swaylock version " SWAYLOCK_VERSION "\n");
 			exit(EXIT_SUCCESS);
+			break;
+		case LO_BUTTON_BACKGROUND_COLOR:
+			if (state) {
+				state->args.colors.button_background =
+					parse_color(optarg);
+			}
+			break;
+		case LO_BUTTON_BACKGROUND_PRESSED_COLOR:
+			if (state) {
+				state->args.colors.button_background_pressed =
+					parse_color(optarg);
+			}
+			break;
+		case LO_BUTTON_BORDER_COLOR:
+			if (state) {
+				state->args.colors.button_border =
+					parse_color(optarg);
+			}
+			break;
+		case LO_BUTTON_TEXT_COLOR:
+			if (state) {
+				state->args.colors.button_text =
+					parse_color(optarg);
+			}
 			break;
 		case LO_BS_HL_COLOR:
 			if (state) {

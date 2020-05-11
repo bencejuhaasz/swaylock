@@ -44,6 +44,18 @@ Locks your Wayland session.
 
 # APPEARANCE
 
+*--button-background-color* <rrggbb[aa]>
+	Button background color.
+
+*--button-background-pressed-color* <rrggbb[aa]>
+	Button background color when pressed.
+
+*--button-border-color* <rrggbb[aa]>
+	Button border color.
+
+*--button-text-color* <rrggbb[aa]>
+	Button text color.
+
 *-u, --no-unlock-indicator*
 	Disable the unlock indicator.
 
