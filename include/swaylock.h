@@ -10,18 +10,13 @@
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 
 enum auth_state {
-	AUTH_STATE_IDLE,
-	AUTH_STATE_CLEAR,
 	AUTH_STATE_INPUT,
-	AUTH_STATE_INPUT_NOP,
-	AUTH_STATE_BACKSPACE,
 	AUTH_STATE_VALIDATING,
 	AUTH_STATE_INVALID,
 };
 
 enum render_state {
 	RENDER_STATE_INITIAL,
-	RENDER_STATE_KEYBOARD,
 	RENDER_STATE_PIN,
 };
 
