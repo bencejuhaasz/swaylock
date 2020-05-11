@@ -130,21 +130,6 @@ void swaylock_handle_key(struct swaylock_state *state,
 		damage_state(state);
 		schedule_password_clear(state);
 		break;
-	case XKB_KEY_m: /* fallthrough */
-	case XKB_KEY_d:
-	case XKB_KEY_j:
-		if (state->xkb.control) {
-			submit_password(state);
-			break;
-		}
-		// fallthrough
-	case XKB_KEY_c: /* fallthrough */
-	case XKB_KEY_u:
-		if (state->xkb.control) {
-			clear_password_buffer(&state->password);
-			damage_state(state);
-			break;
-		}
 		// fallthrough
 	default:
 		if (codepoint) {
