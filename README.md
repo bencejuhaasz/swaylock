@@ -47,3 +47,7 @@ On systems without PAM, you need to suid the swaylock-touch binary:
     sudo chmod a+s /usr/local/bin/swaylock-touch
 
 Swaylock-touch will drop root permissions shortly after startup.
+
+## Regarding passwords
+
+Pinpad-based screen locker only accepts numerical passwords. Either set your user password to an all-numeric one or use PAM's separate authorization for the program (e.g. via pam_pwdfile)
