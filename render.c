@@ -430,6 +430,8 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 
 	cairo_t *cairo = surface->current_buffer->cairo;
 
+	set_color_for_state(cairo, state, &state->args.colors.text);
+
 	cairo_set_line_width(cairo, state->args.thickness * surface->scale);
 	cairo_set_line_join(cairo, CAIRO_LINE_JOIN_ROUND);
 
@@ -441,9 +443,7 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 		cairo_set_font_size(cairo, 50);
 	}
 
-
 	char *pwline;
-
 	switch (state->auth_state) {
 	case AUTH_STATE_VALIDATING:
 		pwline = "validating";
@@ -463,20 +463,22 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 
 	cairo_move_to(cairo, buffer_width / 2 - pw_extents.width / 2, text_area_height / 2);
 	cairo_show_text(cairo, pwline);
-	  	
+
+	set_color_for_state(cairo, state, &state->args.colors.line);
+	
 	cairo_move_to(cairo, button_spacing, text_area_height);
 	cairo_line_to(cairo, buffer_width - button_spacing, text_area_height);
 	cairo_stroke(cairo);
 
+	set_color_for_state(cairo, state, &state->args.colors.ring);
 	int32_t pressed_button = state->touch.current_pressed;
-
 	for (int i = 0; i < 4; i++) {
 		for (int j = 0; j < 3; j++) {
 		  int current_button = i * 3 + j;
 		  uint32_t fill_color =
 			  (pressed_button == current_button) ?
-				  state->args.colors.key_highlight :
-				  0;
+				  state->args.colors.layout_background :
+				  state->args.colors.layout_text;
 		  cairo_set_source_u32(cairo, fill_color);
 		  cairo_rectangle(cairo,
 				  button_spacing * (j + 1) + button_width * j,
@@ -491,7 +493,7 @@ void render_frame_touch_pin(struct swaylock_surface *surface) {
 				  button_width, button_height);
 		  cairo_stroke(cairo);
 
-		  cairo_set_source_u32(cairo, state->args.colors.layout_text);
+		  set_color_for_state(cairo, state, &state->args.colors.ring);
 
 		  cairo_text_extents_t extents;
 		  cairo_text_extents(cairo, buttons[i * 3 + j], &extents);

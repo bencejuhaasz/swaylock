@@ -63,6 +63,7 @@ static void keyboard_key(void *data, struct wl_keyboard *wl_keyboard,
 		swaylock_handle_key(state, sym, codepoint);
 	} else {
 	  state->touch.current_pressed = -1; //CRUTCH
+	  state->touch.pressed = false;
 	}
 }
 
