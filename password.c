@@ -145,13 +145,17 @@ void swaylock_handle_key(struct swaylock_state *state,
 
 void swaylock_handle_touch(struct swaylock_state *state,
 			   enum touch_event event, int x, int y) {
-	if (state->auth_state == AUTH_STATE_VALIDATING ||
-	    state->auth_state == AUTH_STATE_INVALID) {
+	if (state->auth_state == AUTH_STATE_VALIDATING) {
+		damage_state(state);
 		return;
 	}
+
 	switch (event) {
 	case TOUCH_EVENT_DOWN:
 		if (!state->touch.pressed) {
+
+			state->auth_state = AUTH_STATE_INPUT;
+
 			state->touch.pressed = true;
 			state->touch.x = x;
 			state->touch.y = y;
@@ -176,6 +180,7 @@ void swaylock_handle_touch(struct swaylock_state *state,
 				}
 			}
 		}
+		damage_state(state);
 		schedule_password_clear(state);
 		break;
 	case TOUCH_EVENT_UP:
